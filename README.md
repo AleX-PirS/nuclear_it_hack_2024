@@ -57,7 +57,7 @@ pip install --upgrade --no-deps --force-reinstall git....
 
 #### 4. Активируйте виртуальное окружение
 ```
-myenv\Scripts\activate
+.venv\Scripts\activate
 ```
 
 #### 5. Запустите приложение 
