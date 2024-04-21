@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/AleX-PirS/nuclear_it_hack_2024/services/core"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func main(){
@@ -14,18 +14,7 @@ func main(){
 		Name: "Graph atributor",
 		Usage: "Road graph processing",
 
-		Commands: []cli.Command{
-			{
-				Name:    "start",
-				Aliases: []string{"s"},
-				Usage:   "Start processing of two graphs",
-				Action:  func(c *cli.Context) error {
-					core.Serve(c.Int("n"), c.String("af"), c.String("gf"), c.String("rf"))
-					log.Println("Start utility")
-					return nil
-				},
-			},
-		},
+		
 		Flags: []cli.Flag{
             &cli.StringFlag{
                 Name:     "af",
@@ -42,12 +31,18 @@ func main(){
                 Usage:    "Specifies the name of output file",
                 Required: true,
             },
-            &cli.Float64Flag{
-                Name:    "n",
+            &cli.IntFlag{
+                Name:    "acc",
                 Usage:   "Specifies the accuracy",
                 Value:   15,
+				Required: true,
             },
         },
+		Action:  func(c *cli.Context) error {
+			core.Serve(c.Int("acc"), c.String("af"), c.String("gf"), c.String("rf"))
+			log.Println("Start utility")
+			return nil
+		},
 	}
 
 	err := app.Run(os.Args)
