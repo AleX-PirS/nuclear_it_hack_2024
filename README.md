@@ -35,7 +35,7 @@ ____
 
 ### Установка пакетов
 
-#### 1. Установите необходимые репозиториев 
+#### 1. Заимпортируйте необходимые библиотеки 
 ```python
  pip install Flask
  pip install geopandas 
@@ -48,19 +48,12 @@ ____
 pip install --upgrade --no-deps --force-reinstall git....
 ```
 
-#### 3. Заимпортируйте необходимые библиотеки
-```python 
- pip install Flask
- pip install geopandas 
- pip install folium
-```
-
-#### 4. Активируйте виртуальное окружение
+#### 3. Активируйте виртуальное окружение
 ```
 .venv\Scripts\activate
 ```
 
-#### 5. Запустите приложение 
+#### 4. Запустите приложение 
 ```python 
  python app.py
 ```
