@@ -37,8 +37,10 @@ ____
 
 #### 1. Установите необходимые репозиториев 
 ```python
- pip install 
- pip install 
+ pip install Flask
+ pip install geopandas 
+ pip install folium
+
 ```
 #### 2. Обновите пакеты если необходимо
 
