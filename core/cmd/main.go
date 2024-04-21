@@ -1,26 +1,58 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
-	"github.com/AleX-PirS/nuclear_it_hack_2024/interfaces/handlers"
-	"github.com/AleX-PirS/nuclear_it_hack_2024/interfaces/http"
-	"github.com/paulmach/orb/geojson"
+	"github.com/AleX-PirS/nuclear_it_hack_2024/services/core"
+	"github.com/urfave/cli"
 )
 
 func main(){
-	fApp := http.New()
-	h := handlers.New()
-	s := http.NewServer(fApp, h)
-	readCh, sendCh := s.GetChans()
+	app := &cli.App{
+		Name: "Graph atributor",
+		Usage: "Road graph processing",
 
-	go s.ConfigurateAndRun()
+		Commands: []cli.Command{
+			{
+				Name:    "start",
+				Aliases: []string{"s"},
+				Usage:   "Start processing of two graphs",
+				Action:  func(c *cli.Context) error {
+					core.Serve(c.Int("n"), c.String("af"), c.String("gf"), c.String("rf"))
+					log.Println("Start utility")
+					return nil
+				},
+			},
+		},
+		Flags: []cli.Flag{
+            &cli.StringFlag{
+                Name:     "af",
+                Usage:    "Specifies the name of atritube file",
+                Required: true,
+            },
+            &cli.StringFlag{
+                Name:     "gf",
+                Usage:    "Specifies the name of geography file",
+                Required: true,
+            },
+            &cli.StringFlag{
+                Name:     "rf",
+                Usage:    "Specifies the name of output file",
+                Required: true,
+            },
+            &cli.Float64Flag{
+                Name:    "n",
+                Usage:   "Specifies the accuracy",
+                Value:   15,
+            },
+        },
+	}
 
-	for {
-		data := <-readCh
-		log.Println(data)
-		fc := geojson.NewFeatureCollection()
-		fc.Type = "TESTING"
-		sendCh <- fc
+	err := app.Run(os.Args)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

@@ -1,12 +1,10 @@
 package http
 
 import (
-	"log"
-
 	"github.com/AleX-PirS/nuclear_it_hack_2024/interfaces/http/dto"
 	"github.com/AleX-PirS/nuclear_it_hack_2024/interfaces/http/handlers"
 	"github.com/gofiber/fiber/v2"
-	"github.com/paulmach/orb/geojson"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type Config struct {
@@ -29,7 +27,7 @@ type Server struct {
 	config *Config
 }
 
-func (s *Server) GetChans() (chan *dto.Request, chan *geojson.FeatureCollection) {
+func (s *Server) GetChans() (chan dto.Request, chan dto.Response) {
 	return s.h.GetChans()
 }
 
@@ -46,7 +44,11 @@ func New() *fiber.App{
 }
 
 func (s *Server) Register() {
-	s.app.Post("/upload", s.h.HandleJsons)
+	s.app.Post("/upload_go", s.h.HandleJsons)
+	s.app.Get("/", func(c *fiber.Ctx) error {
+		log.Info("New request")
+		return c.SendStatus(200)
+	})
 }
 
 func (s *Server) ConfigurateAndRun() {

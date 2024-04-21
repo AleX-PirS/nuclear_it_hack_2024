@@ -1,11 +1,13 @@
 package core
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"os"
 	"time"
 
+	"github.com/AleX-PirS/nuclear_it_hack_2024/interfaces/http/dto"
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/geo"
 	"github.com/paulmach/orb/geojson"
@@ -18,6 +20,18 @@ type PointData struct{
 	geoIndex int
 	atrIndex int
 	findFlag bool
+}
+
+type CoreService struct {
+	inCh chan dto.Request
+	outCh chan dto.Response
+}
+
+func NewCoreService (inCh chan dto.Request, outCh chan dto.Response) *CoreService{
+	return &CoreService{
+		inCh: inCh,
+		outCh: outCh,
+	}
 }
 
 func betweenPoint(use bool, accarucy int, l, r orb.Point) []orb.Point{
@@ -75,55 +89,43 @@ func processRawData(accarucy int, atrGraph *geojson.FeatureCollection) (*quadtre
 	return qTree, hash
 }
 
-func main() {
+func Serve(accuracy int, fileAtrPath, fileGeoPath, fileName string) error{
 	start := time.Now()
-	fileName := "green_v1.geojson"
-	redGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/kaliningrad_red_WGS84.geojson")
-	// redGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/red_new1.geojson")
-	// redGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/red_new_new.geojson")
-	// redGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/red_new_new_new.geojson")
-	// redGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/red_1.geojson")
+	redGEOJson, err := os.ReadFile(fileGeoPath)
 	if err != nil{
-		log.Fatal(err)
+		return err
 	}
 
-	blueGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/kaliningrad_blue_WGS84.geojson")
-	// blueGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/blue_new.geojson")
-	// blueGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/blue_new_new.geojson")
-	// blueGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/blue_new_new_new.geojson")
-	// blueGEOJson, err := os.ReadFile("D:/dev/github.com/AleX-PirS/nuclear_it_hack_2024/data/blue_1.geojson")
+	blueGEOJson, err := os.ReadFile(fileAtrPath)
 	if err != nil{
-		log.Fatal(err)
+		return err
 	}
 
 	atrData, err := geojson.UnmarshalFeatureCollection(redGEOJson)
-
 	if err != nil{
-		log.Fatal("Error unmarshall RED geojson:, ", err)
+		return err
 	}
 
 	geoData, err := geojson.UnmarshalFeatureCollection(blueGEOJson)
-
 	if err != nil{
-		log.Fatal("Error unmarshall BLUE geojson:, ", err)
+		return err
+	}
+
+	qTree, atrHash := processRawData(accuracy, atrData)
+
+	resGraph := ResolveGraph(accuracy, geoData, atrData, qTree, atrHash)
+
+	data, err := resGraph.MarshalJSON()
+	if err != nil{
+		return err
 	}
 	
-	accarucy := 20
-
-	qTree, atrHash := processRawData(accarucy, atrData)
-
-	resGraph := ResolveGraph(accarucy, geoData, atrData, qTree, atrHash)
-	// log.Println(resGraph)
-	data, err := resGraph.MarshalJSON()
-	if err != nil {
-		log.Fatal("Error marshall json")
-	}
-
 	err = os.WriteFile(fileName, data, 0644)
-	if err != nil {
-		log.Fatal("Error save json")
+	if err != nil{
+		return fmt.Errorf("error save result. %v", err)
 	}
-	log.Println("Time:", time.Since(start))
+	log.Println("Actual work time:", time.Since(start))
+	return nil
 }
 
 func ResolveGraph(accarucy int, geoGraph, atrGraph *geojson.FeatureCollection, qTree *quadtree.Quadtree, geoHash map[orb.Point]*PointData) *geojson.FeatureCollection{
@@ -220,7 +222,6 @@ func CalculateGraph(accarucy int, point orb.Point, geoFtIdx int, atrHash map[orb
 		if r>float64(accarucy){
 			return -1
 		}
-		// log.Printf("Log. R=%v, nearest:%v", r, nearestPoint)
 		mh.findFlag = true
 
 		return mh.atrIndex

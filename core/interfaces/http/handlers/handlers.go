@@ -1,40 +1,56 @@
 package handlers
 
 import (
-	"log"
+	"encoding/json"
 
 	"github.com/AleX-PirS/nuclear_it_hack_2024/interfaces/http/dto"
 	"github.com/gofiber/fiber/v2"
-	"github.com/paulmach/orb/geojson"
+	"github.com/gofiber/fiber/v2/log"
 )
 	
 
 type Handler struct {
-	outCh chan *dto.Request
-	respCh chan *geojson.FeatureCollection
+	outCh chan dto.Request
+	respCh chan dto.Response
 }
 
 func New() *Handler{
 	return &Handler{
-		outCh: make(chan *dto.Request),
-		respCh: make(chan *geojson.FeatureCollection),
+		outCh: make(chan dto.Request),
+		respCh: make(chan dto.Response),
 	}
 }
 
-func (h *Handler) GetChans() (chan *dto.Request, chan *geojson.FeatureCollection) {
+func (h *Handler) GetChans() (chan dto.Request, chan dto.Response) {
 	return h.outCh, h.respCh
 }
 
+
 func (h *Handler) HandleJsons(c *fiber.Ctx) error {
-	jsonData := &dto.Request{}
-	if err := c.BodyParser(jsonData); err != nil{
-		return c.SendStatus(500)
+	log.Info("New json.")
+	jsonData := dto.Request{}
+	var inpData map[string]interface{}
+	err := c.BodyParser(&inpData)
+	if err != nil {
+		log.Warn("BAD!", err.Error())
 	}
-	
-	h.outCh <- jsonData
+	log.Info(inpData)
+	err = c.BodyParser(&jsonData)
+	if err != nil {
+		log.Warn("BAD!", err.Error())
+	}
+
+	log.Info(jsonData)
+
+	// if err := c.BodyParser(&jsonData); err != nil{
+	// 	log.Info(jsonData)
+	// 	return c.SendStatus(500)
+	// }
+	h.outCh <- dto.Request{Accuracy: 1}
+	// h.outCh <- jsonData
 
 	geo := <- h.respCh
-	data, err := geo.MarshalJSON()
+	data, err := json.Marshal(geo)
 	if err != nil {
 		log.Fatal("Error marshall json")
 	}
