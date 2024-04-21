@@ -49,4 +49,18 @@ pip install --upgrade --no-deps --force-reinstall git....
 ```
 
 #### 3. Заимпортируйте необходимые библиотеки
+```python 
+ pip install Flask
+ pip install geopandas 
+ pip install folium
+```
 
+#### 4. Активируйте виртуальное окружение
+```
+myenv\Scripts\activate
+```
+
+#### 5. Запустите приложение 
+```python 
+ python app.py
+```
