@@ -1,6 +1,7 @@
 # Сервис для обработки и визуализации графов
 ____
-фотка сервиса
+![Approach]![photo1713695471](https://github.com/AleX-PirS/nuclear_it_hack_2024/assets/160402650/98cc5d2e-e39a-47d0-9a82-405214a59ffb)
+
 
 
 ## Описание:
