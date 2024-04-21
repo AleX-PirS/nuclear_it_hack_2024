@@ -34,6 +34,9 @@ ____
 # Описание
 
 ### Установка пакетов
+### Запуск
+
+go run main.go --acc 20 --af kaliningrad_red_WGS84.geojson --gf kaliningrad_blue_WGS84.geojson --rf green.geojson
 
 #### 1. Заимпортируйте необходимые библиотеки 
 ```python
