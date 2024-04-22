@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"time"
@@ -91,12 +90,12 @@ func processRawData(accarucy int, atrGraph *geojson.FeatureCollection) (*quadtre
 
 func Serve(accuracy int, fileAtrPath, fileGeoPath, fileName string) error{
 	start := time.Now()
-	redGEOJson, err := os.ReadFile(fileGeoPath)
+	redGEOJson, err := os.ReadFile(fileAtrPath)
 	if err != nil{
 		return err
 	}
 
-	blueGEOJson, err := os.ReadFile(fileAtrPath)
+	blueGEOJson, err := os.ReadFile(fileGeoPath)
 	if err != nil{
 		return err
 	}
@@ -124,7 +123,7 @@ func Serve(accuracy int, fileAtrPath, fileGeoPath, fileName string) error{
 	if err != nil{
 		return fmt.Errorf("error save result. %v", err)
 	}
-	log.Println("Actual work time:", time.Since(start))
+	fmt.Println("Actual work time:", time.Since(start))
 	return nil
 }
 
@@ -151,8 +150,6 @@ func ResolveGraph(accarucy int, geoGraph, atrGraph *geojson.FeatureCollection, q
 		line := orb.LineString{}
 		for pointIdx, geoPoint := range ft.Geometry.(orb.MultiLineString)[0]{
 			atrIndex = CalculateGraph(accarucy, geoPoint, ft_idx, geoHash, qTree)
-			// log.Println("LOGGING:", atrIndex, atrIndexBefore, geoPoint, pointIdx, len(ft.Geometry.(orb.MultiLineString)[0]))
-			// log.Println("Len line start:", len(line))
 			if atrIndex != -1{
 				maps.Copy(newFt.Properties, atrGraph.Features[atrIndex].Properties)
 				line = append(line, geoPoint)
@@ -175,7 +172,6 @@ func ResolveGraph(accarucy int, geoGraph, atrGraph *geojson.FeatureCollection, q
 				}
 				break
 			}
-			// log.Println("Len line after stop_check:", len(line))
 
 			if atrIndex != atrIndexBefore && atrIndexBefore!=-1{
 				if len(line) > 1{
@@ -204,8 +200,7 @@ func ResolveGraph(accarucy int, geoGraph, atrGraph *geojson.FeatureCollection, q
 				curr += 1
 				newFt = newFtFunc(curr)
 			}
-			// log.Println("Len line end:", len(line))
-			
+
 			atrIndexBefore = atrIndex
 		}
 	}

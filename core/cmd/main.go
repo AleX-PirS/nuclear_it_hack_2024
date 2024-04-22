@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/AleX-PirS/nuclear_it_hack_2024/services/core"
@@ -39,8 +38,9 @@ func main(){
             },
         },
 		Action:  func(c *cli.Context) error {
+			fmt.Println("Start utility")
 			core.Serve(c.Int("acc"), c.String("af"), c.String("gf"), c.String("rf"))
-			log.Println("Start utility")
+			fmt.Println("Utility stopped")
 			return nil
 		},
 	}
